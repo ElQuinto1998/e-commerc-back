@@ -1,13 +1,18 @@
 import { IResolvers } from "apollo-server-express";
-import { COLLECTIONS } from "../config/contants";
-import bcrypt from 'bcrypt';
+import { COLLECTIONS } from "../../config/contants";
+import bcrypt from "bcrypt";
+import {
+  asigDocumentId,
+  findOneElement,
+  insertOneElement,
+} from "../../lib/db-operations";
 
-const resolversMutation: IResolvers = {
+const resolversUserMutation: IResolvers = {
   Mutation: {
     async register(_, { user }, { db }) {
-      const userCheck = await db
-        .collection(COLLECTIONS.USERS)
-        .findOne({ email: user.email });
+      const userCheck = await findOneElement(db, COLLECTIONS.USERS, {
+        email: user.email,
+      });
 
       if (userCheck !== null) {
         return {
@@ -16,25 +21,15 @@ const resolversMutation: IResolvers = {
           user: null,
         };
       }
-      const lastUser = await db
-        .collection(COLLECTIONS.USERS)
-        .find()
-        .limit(1)
-        .sort({ registerDate: -1 })
-        .toArray();
-      if (lastUser.length === 0) {
-        user.id = 1;
-      } else {
-        user.id = lastUser[0].id + 1;
-      }
+      user.id = await asigDocumentId(db, COLLECTIONS.USERS, {
+        registerDate: -1,
+      });
 
       user.registerDate = new Date().toISOString();
 
       user.password = bcrypt.hashSync(user.password, 10);
 
-      return await db
-        .collection(COLLECTIONS.USERS)
-        .insertOne(user)
+      return await insertOneElement(db, COLLECTIONS.USERS, user)
         .then(async () => {
           return {
             status: true,
@@ -54,4 +49,4 @@ const resolversMutation: IResolvers = {
   },
 };
 
-export default resolversMutation;
+export default resolversUserMutation;

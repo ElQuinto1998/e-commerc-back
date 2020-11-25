@@ -1,16 +1,17 @@
 import { IResolvers } from "apollo-server-express";
-import { COLLECTIONS, MESSAGES } from "../config/contants";
-import JWT from "../lib/jwt";
+import { COLLECTIONS, MESSAGES } from "../../config/contants";
+import JWT from "../../lib/jwt";
 import bcrypt from "bcrypt";
+import { findElements, findOneElement } from "../../lib/db-operations";
 
-const resolversQuery: IResolvers = {
+const resolversUserQuery: IResolvers = {
   Query: {
     async users(_, __, { db }) {
       try {
         return {
           status: true,
-          message: "Usuario cargados correctamente",
-          users: await db.collection(COLLECTIONS.USERS).find().toArray(),
+          message: "Usuarios cargados correctamente",
+          users: await findElements(db, COLLECTIONS.USERS),
         };
       } catch (error) {
         console.log(error.message);
@@ -23,7 +24,7 @@ const resolversQuery: IResolvers = {
     },
     async login(_, { email, password }, { db }) {
       try {
-        const user = await db.collection(COLLECTIONS.USERS).findOne({ email });
+        const user = await findOneElement(db, COLLECTIONS.USERS, {email});
 
         if (user === null) {
           return {
@@ -67,11 +68,11 @@ const resolversQuery: IResolvers = {
       }
       return {
         status: true,
-        message: 'Usuario autenticado correctamente',
-        user: Object.values(info)[0]
+        message: "Usuario autenticado correctamente",
+        user: Object.values(info)[0],
       };
     },
   },
 };
 
-export default resolversQuery;
+export default resolversUserQuery;
