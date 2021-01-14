@@ -1,6 +1,6 @@
 {
   "name": "e-commerc-back",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Proyecto backend api grapQl\u001b[D\u001b[Dh\u001b[C",
   "main": "build/server.js",
   "scripts": {
