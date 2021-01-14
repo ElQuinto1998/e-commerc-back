@@ -1,4 +1,5 @@
 import { Db } from "mongodb";
+import { IPaginationOptions } from "../interfaces/pagination-options";
 
 export const asigDocumentId = async (
   database: Db,
@@ -44,9 +45,25 @@ export const insertManyElements = async (
 export const findElements = async (
   database: Db,
   collection: string,
-  filter: object = {}
+  filter: object = {},
+  paginationOptions: IPaginationOptions = {
+    page: 1,
+    pages: 1,
+    itemsPage: -1,
+    skip: 0,
+    total: -1,
+  }
 ) => {
-  return await database.collection(collection).find(filter).toArray();
+  if (paginationOptions.total === -1) {
+    return await database.collection(collection).find(filter).toArray();
+  }
+
+  return await database
+    .collection(collection)
+    .find(filter)
+    .limit(paginationOptions.itemsPage)
+    .skip(paginationOptions.skip)
+    .toArray();
 };
 
 export const updateOneElement = async (
@@ -66,4 +83,8 @@ export const deleteOneElement = async (
   filter: object = {}
 ) => {
   return await database.collection(collection).deleteOne(filter);
+};
+
+export const countElements = async (database: Db, collection: string) => {
+  return await database.collection(collection).countDocuments();
 };

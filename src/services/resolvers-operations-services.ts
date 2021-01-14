@@ -8,6 +8,7 @@ import {
   insertOneElement,
   updateOneElement,
 } from "../lib/db-operations";
+import { pagination } from "../lib/pagination";
 
 class ResolverOperationsService {
   private root: object;
@@ -31,16 +32,35 @@ class ResolverOperationsService {
   }
 
   //Listar informacion
-  protected async list(collection: string, listElement: string) {
+  protected async list(
+    collection: string,
+    listElement: string,
+    page: number = 1,
+    itemsPage: number = 20
+  ) {
     try {
+      const paginationData = await pagination(
+        this.getDb(),
+        collection,
+        page,
+        itemsPage
+      );
+
       return {
+        info: {
+          page: paginationData.page,
+          pages: paginationData.pages,
+          itemsPage: paginationData.itemsPage,
+          total: paginationData.total, 
+        },
         status: true,
         message: `Lista de ${listElement} cargados`,
-        items: await findElements(this.getDb(), collection),
+        items: await findElements(this.getDb(), collection, {}, paginationData),
       };
     } catch (error) {
       console.log(error.message);
       return {
+        info: null,
         status: false,
         message: `Error al cargar ${listElement}: ${error}`,
         items: null,

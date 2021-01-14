@@ -1,12 +1,13 @@
 import { IResolvers } from "graphql-tools";
 import { COLLECTIONS } from "../../config/contants";
-import { findOneElement } from "../../lib/db-operations";
+import { countElements, findOneElement } from "../../lib/db-operations";
+import { pagination } from "../../lib/pagination";
 import GenreService from "../../services/genre-services";
 
 const resolversGenreQuery: IResolvers = {
   Query: {
-    async genres(_, __, { db }) {
-      return new GenreService(_, __, { db }).getGenres();
+    async genres(_, variables, { db }) {
+      return new GenreService(_, {pagination: variables}, { db }).getGenres();
     },
     async genre(_, { id }, { db }) {
       return new GenreService(_, {id}, { db }).getGenreDetails();

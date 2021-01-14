@@ -14,8 +14,11 @@ class UserService extends ResolverOperationsService {
 
   //Listar usuarios
   async getUsers() {
-    const result = await this.list(this.collection, "usuarios");
+    const page = this.getVariables().pagination?.page;
+    const itemsPage = this.getVariables().pagination?.itemsPage;
+    const result = await this.list(this.collection, "usuarios", page, itemsPage);
     return {
+      info: result.info,
       status: result.status,
       message: result.message,
       users: result.items,
